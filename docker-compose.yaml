@@ -1,0 +1,34 @@
+version: "3.1"
+
+services:
+  mysql:
+    image: rikoarafi/pos_mysql:v1
+    container_name: db_mysql
+    restart: unless-stopped
+  phpmyadmin:
+    depends_on:
+      - mysql
+    image: phpmyadmin
+    container_name: gui_phpmyadmin
+    ports:
+      # PORT ASLI PHPMYADMIN 80
+      - 1996:80
+    environment:
+      # INISIAL MYSQL CONTAINER
+      PMA_HOST: db_mysql
+      # PORT MYSQL
+      PMA_PORT: 3306
+  pos_backend:
+    container_name: backend_pos
+    depends_on:
+      # tunggu sampai selesai
+      - mysql
+      - phpmyadmin
+    image: rikoarafi/pos_backend:v1
+    ports:
+      # ambil port di env&dockerfile
+      - 2021:2021
+    environment:
+      # LOGIN KE MYSQL
+      # ambil db_mysql di container
+      - MYSQL_HOST=db_mysql
